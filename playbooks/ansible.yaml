@@ -2,7 +2,6 @@
 - name: DEPLOYMENT ON EKS
   hosts: kubernetes
   remote_user: root
-  become: yes              # if you need sudo permissions
   tasks:
 
     - name: CREATE PLAYBOOKS DIR ON EKS CLUSTER
