@@ -2,49 +2,61 @@
 - name: DEPLOYMENT ON EKS
   hosts: kubernetes
   remote_user: root
-  tasks:  
+  become: yes              # if you need sudo permissions
+  tasks:
+
     - name: CREATE PLAYBOOKS DIR ON EKS CLUSTER
       file:
-        path: /home/ubuntu/abctech 
+        path: /home/ubuntu/abctech
         state: directory
-        mode: "0755"
+        mode: '0755'
 
     - name: COPY pod.yaml FILE TO EKS CLUSTER
       copy:
-        src: /var/lib/jenkins/workspace/abctechnologies/playbooks/pod.yaml    # path on Ansible controller
-        dest: /home/ubuntu/abctech/pod.yaml         # path on remote EKS node
+        src: /var/lib/jenkins/workspace/abctechnologies/playbooks/pod.yaml
+        dest: /home/ubuntu/abctech/pod.yaml
+        mode: '0644'
 
-    - name: CHECK FILE
-      shell: ls -l /home/ubuntu/abctech/ 
-      register: copy        
+    - name: VERIFY pod.yaml COPIED
+      stat:
+        path: /home/ubuntu/abctech/pod.yaml
+      register: pod_file_stat
 
-    - name: DEPLOYMENT FILE COPY STATUS      
+    - name: SHOW pod.yaml COPY RESULT
       debug:
-        var: copy.stdout_lines              
-        
-    - name: DEPLOYMENT ON K8s CLUSTER
+        var: pod_file_stat
+
+    - name: APPLY KUBERNETES POD DEPLOYMENT
       shell: kubectl apply -f /home/ubuntu/abctech/pod.yaml
       register: deployment
+      environment:
+        KUBECONFIG: /root/.kube/config     # adjust if your kubeconfig is elsewhere
+      changed_when: "'created' in deployment.stdout or 'configured' in deployment.stdout"
 
-    - name: DEPLOYMENT STATUS      
+    - name: SHOW DEPLOYMENT APPLY OUTPUT
       debug:
         var: deployment.stdout_lines
 
-    - name: WAITING FOR GET DEPLOYMENT STATUS
-      shell: sleep 10     
+    - name: WAIT FOR POD DEPLOYMENT TO STABILIZE
+      pause:
+        seconds: 10
 
-    - name: STATUS OF DEPLOYMENT
-      shell: kubectl get pod
+    - name: GET POD STATUS
+      shell: kubectl get pods --all-namespaces
       register: get_deployment_status
-      
-    - name: STATUS OF SERVICE
-      shell: kubectl get svc
-      register: get_svc_status
+      environment:
+        KUBECONFIG: /root/.kube/config
 
-    - name: PRINT DEPLOYMENT STATUS
+    - name: GET SERVICE STATUS
+      shell: kubectl get svc --all-namespaces
+      register: get_svc_status
+      environment:
+        KUBECONFIG: /root/.kube/config
+
+    - name: SHOW POD STATUS
       debug:
         var: get_deployment_status.stdout_lines
 
-    - name: PRINT SVC STATUS
+    - name: SHOW SERVICE STATUS
       debug:
         var: get_svc_status.stdout_lines
