@@ -60,6 +60,14 @@ pipeline {
                 '''
             }
         }
+
+        stage('DEPLOYMENT ON EKS') {
+            steps {
+                sh 'ansible-playbook playbooks/k8s.yaml'
+                    
+            }            
+        } 
+        
         
     }
 }
