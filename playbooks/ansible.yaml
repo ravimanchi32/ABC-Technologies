@@ -5,15 +5,17 @@
   tasks:  
     - name: CREATE PLAYBOOKS DIR ON EKS CLUSTER
       file:
-        path: /opt/playbooks/
+        path: /home/ubuntu/abctech 
         state: directory
-        mode: "0755"   
-    - name: COPY DEPLOYMENT FILE
+        mode: "0755"
+
+    - name: COPY pod.yaml FILE TO EKS CLUSTER
       copy:
-        src:   /var/lib/jenkins/workspace/playbooks/ansible.yaml
-        dest: /opt/playbooks
+        src: /var/lib/jenkins/workspace/abctechnologies/playbooks/pod.yaml    # path on Ansible controller
+        dest: /home/ubuntu/abctech/pod.yaml         # path on remote EKS node
+
     - name: CHECK FILE
-      shell: ls -l /opt/playbooks/
+      shell: ls -l /home/ubuntu/abctech/ 
       register: copy        
 
     - name: DEPLOYMENT FILE COPY STATUS      
@@ -21,7 +23,7 @@
         var: copy.stdout_lines              
         
     - name: DEPLOYMENT ON K8s CLUSTER
-      shell: kubectl apply -f /opt/playbooks/pod.yaml
+      shell: kubectl apply -f /home/ubuntu/abctech/pod.yaml
       register: deployment
 
     - name: DEPLOYMENT STATUS      

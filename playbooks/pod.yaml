@@ -14,9 +14,9 @@ spec:
     spec:
       containers:
       - name: simple-app
-        image:  ravikumarmanchi/abctechnologies:latest
+        image: ravikumarmanchi/abctechnologies:latest
         ports:
-        - containerPort: 80
+        - containerPort: 8080   # Tomcat inside container
 ---
 apiVersion: v1
 kind: Service
@@ -28,5 +28,5 @@ spec:
     app: simple-app
   ports:
   - port: 80
-    targetPort: 80
+    targetPort: 8080
     protocol: TCP
