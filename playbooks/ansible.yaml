@@ -1,7 +1,7 @@
 ---
 - name: DEPLOYMENT ON EKS
   hosts: kubernetes
-  remote_user: ubuntu
+  remote_user: root
   become: yes              # if you need sudo permissions
   tasks:
 
