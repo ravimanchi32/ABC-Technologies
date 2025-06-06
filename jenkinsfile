@@ -19,7 +19,7 @@ pipeline {
         }
         stage('git checkout') {
             steps {
-                git branch: 'master', url: 'https://github.com/ravimanchi0321/ABC-Technologies.git'
+                git branch: 'dev', url: 'https://github.com/ravimanchi0321/ABC-Technologies.git'
         }
         }
         stage('Build') {
@@ -60,14 +60,6 @@ pipeline {
                 '''
             }
         }
-
-        stage('DEPLOYMENT ON EKS') {
-            steps {
-                sh 'ansible-playbook playbooks/k8s.yaml'
-                    
-            }            
-        } 
-        
         
     }
 }
